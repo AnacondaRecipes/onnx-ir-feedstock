@@ -1,45 +1,61 @@
 {% set name = "onnx-ir" %}
-{% set version = "0.1.12" %}
+{% set version = "0.1.16" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/onnx_ir-{{ version }}.tar.gz
-  sha256: 742e0bff875d0547724187560b3f441833191c8aa939c05f14176f4892784deb
+  url: https://github.com/{{ name.split('-')[0] }}/{{ name.split('-')[1] }}-py/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: d428fdc2189d16b4651b8ad01ee2c7cf0b450559d67fb5564683355e53bcb4d3
 
 build:
-  noarch: python
-  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true  # [py<39]
 
 requirements:
   host:
-    - python {{ python_min }}
-    - setuptools >=70
     - pip
+    - python
+    - setuptools >=77
   run:
-    - python >={{ python_min }}
+    - python
     - numpy
     - onnx >=1.16
     - typing_extensions >=4.10
     - ml_dtypes >=0.5.0
 
+# TODO: remove next time after onnxscript release:
+# E   ModuleNotFoundError: No module named 'onnxscript'
+{% set deselect_tests = "--deselect=tests/public_api_test.py::TestPublicApiNamespace::test_correct_module_names" %}
+
 test:
+  source_files:
+    - tests
+    - testdata
   imports:
     - onnx_ir
+  requires:
+    - pip
+    - pytest !=7.1.0
+    - parameterized
+    - pytorch >=2.3
+    - safetensors  # [py<314]
+    - onnxruntime >=1.17.0  # [py<314]
   commands:
     - pip check
-  requires:
-    - python {{ python_min }}
-    - pip
+    - pytest -v tests {{ deselect_tests }}
 
 about:
-  home: https://github.com/onnx/ir-py
-  summary: Efficient in-memory representation for ONNX
+  home: https://onnx.ai/ir-py
+  summary: An in-memory IR that supports the full ONNX spec, designed for graph construction, analysis and transformation.
+  description: An in-memory IR that supports the full ONNX spec, designed for graph construction, analysis and transformation.
   license: Apache-2.0
   license_file: LICENSE
+  license_family: Apache
+  doc_url: https://onnx.ai/ir-py
+  dev_url: https://github.com/onnx/ir-py
 
 extra:
   recipe-maintainers:
