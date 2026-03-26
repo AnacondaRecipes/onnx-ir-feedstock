@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/onnx/ir-py/archive/refs/tags/v{{ version }}.tar.gz
+  url: https://github.com/{{ name.split('-')[0] }}/{{ name.split('-')[1] }}-py/archive/refs/tags/v{{ version }}.tar.gz
   sha256: d428fdc2189d16b4651b8ad01ee2c7cf0b450559d67fb5564683355e53bcb4d3
 
 build:
